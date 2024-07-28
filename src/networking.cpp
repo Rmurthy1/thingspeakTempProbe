@@ -34,6 +34,7 @@ unsigned long myChannelNumber = SECRET_CH_ID;
 const char * myWriteAPIKey = THINGSPEAK_API_WRITE;
 
 int number = 0;
+int delayTime = 10000 * 2; // delay between writes to ThingSpeak in ms
 
 // Function declarations
 void sendDataToThingSpeak(String data);
@@ -42,14 +43,20 @@ void thingSpeakWriteREST(String data);
 void prepareJSON(String message);
 String getValue(String data, char separator, int index);
 void wifiStatusLED();
+void updateRate(int rate);
 
+// update the delay time between writes to ThingSpeak, in ms
+void updateRate(int rate) {
+  delayTime = rate;
+}
 
+// called from user of library, sends data to ThingSpeak every delayTime ms
 void sendDataToThingSpeak(String data) {
   
   
   // flips between 0 and 1 every 60 seconds. (0 to min 1 = 0, 1 to 2 = 1, 2 to 3 = 0, etc) (sends data every two minutes, when 60000)
   // every (2 * 60000) seconds
-  if (((millis() / 60000) % 2)) {
+  if (((millis() / delayTime) % 2)) {
    
     if (sendData == true) {
       wifiStatusLED();
@@ -66,6 +73,8 @@ void sendDataToThingSpeak(String data) {
 void blinkLight(bool keepBlinking) {
   if (lightBlink == true) {
     digitalWrite(LED_BUILTIN, (millis() / period) % 2);
+  } else {
+    digitalWrite(LED_BUILTIN, LOW);
   }
 }
 
